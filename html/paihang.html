@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+  <title>title</title>
+  <link rel="stylesheet" type="text/css" href="../css/api.css" />
+  <link rel="stylesheet" type="text/css" href="../css/aui.css" />
+  <style>
+    @@font-face {
+      src: url(./css/aui-iconfont.ttf);
+    }
+    .aui-list-item{
+
+      -moz-box-shadow: 1px 2px 8px #ededed; /* 老的 Firefox */
+      box-shadow: 1px 2px 6px #ededed;
+    }
+
+    .mfoot {
+      position:relative;margin-bottom: 55px;
+    }
+
+  </style>
+</head>
+
+
+<body>
+  <header class="aui-bar aui-bar-nav">
+    <div class="aui-pull-left aui-btn" tapmode onclick="api.closeWin()">
+      <span class="aui-iconfont aui-icon-left"></span>
+    </div>
+    <div class="aui-title">排行榜</div>
+  </header>
+
+
+  <ul class="aui-list aui-media-list mfoot" id="main">
+
+
+
+
+
+
+  </ul>
+
+  <footer class="aui-bar aui-bar-tab">
+    <div class="aui-bar-tab-item " tapmode onclick="fnhome()">
+      <i class="aui-iconfont aui-icon-home"></i>
+      <div class="aui-bar-tab-label">首页</div>
+    </div>
+    <div class="aui-bar-tab-item aui-active" tapmode >
+      <i class="aui-iconfont aui-icon-star"></i>
+      <div class="aui-bar-tab-label">排行榜</div>
+    </div>
+
+    <div class="aui-bar-tab-item" tapmode onclick="fnmy()">
+      <div class="aui-dot"></div>
+      <i class="aui-iconfont aui-icon-my"></i>
+      <div class="aui-bar-tab-label">我的</div>
+    </div>
+  </footer>
+
+</body>
+
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/SHA1.js"></script>
+<script type="text/javascript" src="../script/doT.min.js"></script>
+<script id="template" type="text/template">
+  {{~it:data}}
+  <li class="aui-list-item aui-margin-t-15" tapmode onclick="details('{{=data.id}}','{{=data.content}}')">
+    <div class="aui-media-list-item-inner">
+
+      <div class="aui-list-item-inner">
+        <div class="aui-list-item-text">
+          <div class="aui-list-item-title aui-ellipsis-1">  {{=data.title}}</div>
+
+        </div>
+        <div class="aui-list-item-text aui-ellipsis-2">
+          {{=data.content}}
+        </div>
+        <div class="aui-info aui-margin-t-15" style="padding:0">
+          <div class="aui-info-item">
+            <img src="../image/liulangnan.png" style="width:1rem" class="aui-img-round" /><span class="aui-margin-l-5">佚名</span>
+          </div>
+          <div class="aui-info-item"> {{=data.createdAt.substr(0,10)}}</div>
+        </div>
+      </div>
+      <div class="aui-list-item-media">
+        {{if(data.img!=null){}}
+
+        <img src="{{=data.img}}">
+
+        {{ }else{}}
+        <img src="../image/9.png">
+        {{ } }}
+      </div>
+    </li>
+
+    {{~}}
+  </script>
+  <script>
+    apiready = function() {
+     getpaihang()
+
+   }
+
+
+   function fnhome(){
+    api.openWin({
+      name: 'homeg',
+      url: './news.html',
+
+    });
+
+  }
+  function fnmy(){
+    api.openWin({
+      name: 'my',
+      url: './my.html',
+
+    });
+
+  }
+
+  function details(id,content){
+   api.openWin({
+     name: 'contents',
+     url: './content.html',
+     pageParam: {
+       id: id,
+       content:content
+     }
+   });
+
+
+
+ }
+
+ function getpaihang(){
+  var template=$api.byId('template');
+  var dot=doT.template(template.innerHTML);
+  var now = Date.now();
+  var appKey = SHA1("A605018246573"+"UZ"+"D06D3410-B97B-02E8-7417-8109902C9261"+"UZ"+now)+"."+now;
+
+  var params = {
+    fields: {},
+    where: {
+      status:2
+    },
+    skip: 0,
+    limit: 10,
+    order: "id DESC",
+  }
+  params = $api.jsonToStr(params);
+
+  api.ajax({
+    url: 'http://d.apicloud.com/mcm/api/news?filter=' + params,
+    method: 'get',
+
+    headers: {
+      "X-APICloud-AppId": "A605018246573",
+      "X-APICloud-AppKey": appKey
+    }
+
+  },function(ret, err){
+    if (ret) {
+
+      $api.html(main, dot(ret));
+
+      if(ret.length==0){
+        api.toast({
+          msg: '没有数据哦',
+          duration: 3000,
+          location: 'bottom'
+        });
+
+
+
+      }
+
+    } else {
+      alert( JSON.stringify( err ) );
+    }
+  });
+
+}
+
+</script>
+
+</html>

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0" />
+  <title>title</title>
+  <link rel="stylesheet" type="text/css" href="../css/api.css" />
+  <link rel="stylesheet" type="text/css" href="../css/aui.css" />
+  <style>
+    @@font-face {
+      src: url(./css/aui-iconfont.ttf);
+    }
+    .uibody{
+      margin-top: 180px;margin-bottom: 51px;
+    }
+    .mfoot {
+      position:relative;bottom:50px;
+    }
+    .tcenter{
+
+
+      text-align: center;
+
+    }
+    .aui-card-list-content{
+      margin-bottom: 10px;color:#000; letter-spacing:2px;
+    }
+    .aui-card-list-content p{
+      margin-top: 15px;text-indent: 20px;color:#000;
+    }
+    .aui-info{
+      margin-bottom: 60px;
+    }
+  </style>
+</head>
+
+
+<body>
+  <header class="aui-bar aui-bar-nav">
+    <div class="aui-pull-left aui-btn" tapmode onclick="api.closeWin()">
+      <span class="aui-iconfont aui-icon-left"></span>返回
+    </div>
+    <div class="aui-title">新闻详情</div>
+  </header>
+
+  <div class="aui-card-list">
+
+    <h3 class="tcenter aui-padded-t-15 aui-padded-b-15" ><span id="titles"></span></h3>
+
+    <div class="aui-progress aui-progress-xxs">
+      <div class="aui-progress-bar" style="width: 20%;"></div>
+    </div>
+    <div class="aui-content-padded">
+      <div class="aui-card-list-content"><p id="contents">
+      </p>
+      <p></p>
+      <ul class="aui-list aui-media-list">
+
+
+        <li class="aui-list-item">
+          <div class="aui-media-list-item-inner">
+            <div class="aui-list-item-media">
+              <img src="../image/demo1.png" id="pics">
+            </div>
+            <div class="aui-list-item-inner">
+
+              <div class="aui-list-item-text">
+                感谢您的阅读
+              </div>
+            </div>
+          </div>
+
+        </li>
+
+
+      </ul>
+      <div class="aui-hr"></div>
+    </div>
+
+
+
+    <div class="aui-info">
+      <div class="aui-info-item">
+        <img src="../image/demo2.png" style="width:1.5rem" class="aui-img-round" /><span class="aui-margin-l-5">来源:<span id="user"></span></span>
+      </div>
+      <div class="aui-info-item">时间:<span id="times"></span></div>
+    </div>
+
+  </div>
+
+
+
+
+  <footer class="aui-bar aui-bar-tab">
+
+    <div class="aui-bar-tab-item aui-padded-l-15 aui-padded-r-15" tapmode style="width: auto;" onclick="fnpinglun();">
+      <div class="search-input aui-font-size-14 aui-bg-default aui-searchbar-input aui-border-radius">请输入评论内容</div>
+    </div>
+    <div class="aui-bar-tab-item" tapmode style="width: 2.2rem;">
+      <i class="aui-iconfont aui-icon-comment"></i>
+    </div>
+    <div class="aui-bar-tab-item " tapmode style="width: 2.2rem;">
+      <i class="aui-iconfont aui-icon-star aui-text-info"></i>
+    </div>
+    <div class="aui-bar-tab-item" tapmode style="width: 2.2rem;">
+      <i class="aui-iconfont aui-icon-share "></i>
+    </div>
+  </footer>
+
+</body>
+
+<script type="text/javascript" src="../script/api.js"></script>
+<script type="text/javascript" src="../script/SHA1.js"></script>
+<script>
+  apiready = function() {
+   var content=api.pageParam.content;
+   var ids=api.pageParam.id;
+   $api.html(contents, content);
+   getcontent(ids);
+
+
+ }
+ function cancelsend(){
+  var inputField = api.require('inputField');
+  inputField.close();
+}
+
+function fnpinglun(){
+  var inputField = api.require('inputField');
+  inputField.show();
+
+  inputField.open({
+    bgColor: '#f7f7f7',
+    lineColor: '#ddd',
+
+    borderColor: '#ddd',
+    placeholder:'匿名说两句',
+    fixedOn: api.frameName,
+    maxLines:60,
+    sendBtn:{
+           bg: '#4dd363',          //字符串类型；发送按钮常态背景色
+           title: '发送',        //字符串类型；发送按钮的标题
+           titleColor: '#fff'    //数字类型；发送按钮圆角大小
+         }
+       }, function(ret, err) {
+        if (ret) {
+          fnsend(ret.msg);
+
+
+        } else {
+          alert(JSON.stringify(err));
+        }
+      });
+
+
+}
+function fnsend(datas){
+  var inputField = api.require('inputField');
+  var now = Date.now();
+  var appKey = SHA1("A605018246573"+"UZ"+"D06D3410-B97B-02E8-7417-8109902C9261"+"UZ"+now)+"."+now;
+  api.ajax({
+    url: 'http://d.apicloud.com/mcm/api/ping',
+    method: 'post',
+    headers: {
+      "X-APICloud-AppId": "A605018246573",
+      "X-APICloud-AppKey": appKey
+    },
+    data: {
+      values: {
+        pingluns: datas,
+        news_id:api.pageParam.id,
+        user_id:2
+      },
+
+    }
+  },function(ret, err){
+    if (ret) {
+      api.toast({
+        msg: '评论成功',
+        duration: 2000,
+        location: 'bottom'
+      });
+
+      inputField.close();
+    } else {
+      alert( JSON.stringify( err ) );
+    }
+  });
+
+
+}
+
+function getcontent(ids){
+
+  var now = Date.now();
+  var appKey = SHA1("A605018246573"+"UZ"+"D06D3410-B97B-02E8-7417-8109902C9261"+"UZ"+now)+"."+now;
+
+
+  var params = {
+    fields: {},
+    where: {
+
+      id:ids,
+
+
+
+    },
+
+  }
+  params = $api.jsonToStr(params);
+  api.ajax({
+   url: 'http://d.apicloud.com/mcm/api/news?filter='+params,
+   method: 'get',
+   headers: {
+     "X-APICloud-AppId": "A605018246573",
+     "X-APICloud-AppKey": appKey
+   }
+ },function(ret, err){
+   if (ret) {
+     var titles=$api.byId('titles');
+     var user=$api.byId('user');
+     var times=$api.byId('times');
+     var ti=  ret[0].updatedAt.substr(0,10);
+
+     var pics=$api.byId('pics');
+
+     $api.html(titles,ret[0].title);
+     $api.html(user,ret[0].username);
+     $api.html(times,ti);
+     if(ret[0].img!=null){
+       $api.attr(pics, 'src',ret[0].img);
+     }
+
+
+
+   } else {
+     alert( JSON.stringify(err ) );
+   }
+ });
+}
+
+
+</script>
+
+</html>
